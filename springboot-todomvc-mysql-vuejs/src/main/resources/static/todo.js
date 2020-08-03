@@ -66,58 +66,58 @@ var app = new Vue({
     },
     filters: {
         pluralize: function (n) {
-        return n === 1 ? 'item': 'items'
+            return n === 1 ? 'item': 'items'
+        }
+    },
+    mounted() {
+        axios.get('/api/v1/todos')
+          .then(response => (todoStorage.save(response.data)))
+          .catch(error => console.log(error))
+    },
+    methods: {
+        addTodo: function () {
+            var value = this.newTodo && this.newTodo.trim()
+            if(!value) {
+                return
+            }
+            this.todos.push({
+                title: value,
+                completed: false
+            })
+            this.newTodo = ''
+        },
+        removeTodo: function (todo) {
+            this.todos.splice(this.todos.indexOf(todo), 1)
+        },
+        editTodo: function (todo) {
+            this.beforeEditCache = todo.title
+            this.editedTodo = todo
+        },
+        doneEdit: function (todo) {
+            if (!this.editedTodo) {
+                return
+            }
+            this.editedTodo = null
+            todo.title = todo.title.trim()
+            if(!todo.title) {
+                this.removeTodo(todo)
+            }
+        },
+        cancelEdit: function (todo) {
+            this.editedTodo = null
+            todo.title = this.beforeEditCache
+        },
+        removeCompleted: function () {
+            this.todos = filters.active(this.todos)
+        }
+    },
+    directives: {
+        'todo-focus': function (el, binding) {
+            if (binding.value) {
+                el.focus()
+            }
+        }
     }
-},
-mounted() {
-    axios.get('/api/v1/todos')
-      .then(response => (todoStorage.save(response.data)))
-      .catch(error => console.log(error))
-},
-methods: {
-    addTodo: function () {
-        var value = this.newTodo && this.newTodo.trim()
-        if(!value) {
-            return
-        }
-        this.todos.push({
-            title: value,
-            completed: false
-        })
-        this.newTodo = ''
-    },
-    removeTodo: function (todo) {
-        this.todos.splice(this.todos.indexOf(todo), 1)
-    },
-    editTodo: function (todo) {
-        this.beforeEditCache = todo.title
-        this.editedTodo = todo
-    },
-    doneEdit: function (todo) {
-        if (!this.editedTodo) {
-            return
-        }
-        this.editedTodo = null
-        todo.title = todo.title.trim()
-        if(!todo.title) {
-            this.removeTodo(todo)
-        }
-    },
-    cancelEdit: function (todo) {
-        this.editedTodo = null
-        todo.title = this.beforeEditCache
-    },
-    removeCompleted: function () {
-        this.todos = filters.active(this.todos)
-    }
-},
-directives: {
-    'todo-focus': function (el, binding) {
-        if (binding.value) {
-            el.focus()
-        }
-    }
-}
 })
 function onHashChange() {
     var visibility = window.location.hash.replace(/#\/?/, '')
