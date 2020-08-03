@@ -66,8 +66,8 @@ var app = new Vue({
     },
     filters: {
         pluralize: function (n) {
-    return n === 1 ? 'item': 'items'
-}
+        return n === 1 ? 'item': 'items'
+    }
 },
 mounted() {
     axios.get('/api/v1/todos')
